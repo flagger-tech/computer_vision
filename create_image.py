@@ -28,4 +28,6 @@ for i in results:
             # cv2.imshow("Frame", image)
         count += 1
 
+    os.remove(f'{folder}/{i}')
+
     cap.release()
