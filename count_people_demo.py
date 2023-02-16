@@ -5,19 +5,25 @@ from datetime import date
 import cv2
 import numpy as np
 import pandas as pd
-import psycopg2
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
-# Connect to the PostgreSQL database using SQLAlchemy
-engine = create_engine("postgresql://fxcdzkhw:Hvok7uj2TO5Io9yUzX7lWJ45-zLNsJj-@trumpet.db.elephantsql.com:5432/fxcdzkhw")
+# Load the environment variables from the .env file
+load_dotenv()
+
+# get data from .env
+engine = os.getenv('engine')
+weights = os.getenv('weight')
+cfg = os.getenv('cfg')
+
+engine = create_engine(engine)
 conn = engine.connect()
 
 today = date.today()
 start = time.time()
 
 # Load YOLO model
-net = cv2.dnn.readNet("/Users/murilobarbosa/PycharmProjects/flagger/count/yolov4.weights",
-                      "/Users/murilobarbosa/PycharmProjects/flagger/count/yolov4.cfg")
+net = cv2.dnn.readNet(weights, cfg)
 
 cap = cv2.VideoCapture(0)
 count = 0
@@ -86,7 +92,7 @@ for file_path in results:
             confidence = scores[class_id]
 
             # Only keep detections with a high confidence
-            if class_id == 0 and confidence > 0.65:
+            if class_id == 0 and confidence > 0.60:
                 # Object detected
                 center_x = int(detection[0] * width)
                 center_y = int(detection[1] * height)
@@ -106,10 +112,10 @@ for file_path in results:
     loc_id.append(file_path[6:8])
     cam_id.append(file_path[3:5])
     dates.append(f"{file_path[9:13]}-{file_path[14:16]}-{file_path[17:19]}")
-    os.remove(f"/Users/murilobarbosa/Desktop/wonk/demo/images/{file_path}")
+    # os.remove(f"/Users/murilobarbosa/Desktop/wonk/demo/images/{file_path}")
 
 for i in comp_id:
-    company.append('1675794972609x508585968625410600' if int(i) == 1 else '1571517282871x719253102817289193')
+    company.append('1676546594620x486205763845292540' if int(i) == 1 else '1571517282871x719253102817289193')
 
 location = [cities[cities_id.index(city_id)] if city_id in cities_id else '' for city_id in [int(i) for i in loc_id]]
 
@@ -117,7 +123,7 @@ data = pd.DataFrame({
     'camera_slug': list(set(cam_id)),
     'company': list(set(company)),
     'date': list(set(dates)),
-    'impressions': sum(people_counted),
+    'impressions': sum(people_counted) / fps,
     'location': list(set(location))
 })
 
