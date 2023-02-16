@@ -112,7 +112,7 @@ for file_path in results:
     loc_id.append(file_path[6:8])
     cam_id.append(file_path[3:5])
     dates.append(f"{file_path[9:13]}-{file_path[14:16]}-{file_path[17:19]}")
-    # os.remove(f"/Users/murilobarbosa/Desktop/wonk/demo/images/{file_path}")
+    os.remove(f"/Users/murilobarbosa/Desktop/wonk/demo/images/{file_path}")
 
 for i in comp_id:
     company.append('1676546594620x486205763845292540' if int(i) == 1 else '1571517282871x719253102817289193')
@@ -123,7 +123,7 @@ data = pd.DataFrame({
     'camera_slug': list(set(cam_id)),
     'company': list(set(company)),
     'date': list(set(dates)),
-    'impressions': sum(people_counted) / fps,
+    'impressions': sum(people_counted) / len(people_counted),
     'location': list(set(location))
 })
 
